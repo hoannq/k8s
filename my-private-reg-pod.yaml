@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  .dockerconfigjson: eyJhdXRocyI6eyJodWIuY3lyYWRhci5jb20iOnsidXNlcm5hbWUiOiJkZXZlbG9wIiwicGFzc3dvcmQiOiI4cHo0NkY2Q1RqeGIiLCJhdXRoIjoiWkdWMlpXeHZjRG80Y0hvME5rWTJRMVJxZUdJPSJ9fX0=
+kind: Secret
+metadata:
+  creationTimestamp: "2023-03-24T03:56:56Z"
+  name: cyradar
+  namespace: default
+  resourceVersion: "5540"
+  uid: 7325709b-5391-4caa-8a8f-7c8dccdaf0ea
+type: kubernetes.io/dockerconfigjson

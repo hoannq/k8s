@@ -1,0 +1,100 @@
+vagrant ssh kubemaster
+vagrant ssh kubenode01
+vagrant up
+vagrant up --provision
+vagrant reload
+# sử dung containerd
+sudo ctr plugin ls
+
+# Khởi tạo control plane
+sudo kubeadm init --apiserver-advertise-address=192.168.56.2 --pod-network-cidr=10.244.0.0/16
+kubeadm join 192.168.56.2:6443 --token l009os.2qpu42meugx7o73h --discovery-token-ca-cert-hash sha256:bd6d4e1da70efd4a3756db72dd3e270812a1bd7ffd6077d698b543942855753d
+kubeadm token list
+kubeadm token create
+
+openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | \
+openssl dgst -sha256 -hex | sed 's/^.* //'
+
+# Để kubectl có thể dùng với non-root user
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+#nếu bạn là root user, có thể dùng lệnh sau:
+export KUBECONFIG=/etc/kubernetes/admin.conf
+
+# kiểm tra
+sudo netstat -lntp
+kubectl get nodes
+kubectl get namespace
+
+#Cài đặt Pod network add-on
+Pod network add-ons là Kubernetes-specific CNI plugins cung cấp kết nối mạng giữa các pod trong một Kubernetes cluster. 
+Nó tạo một mạng overlay ảo phủ toàn bộ cluster và gắn cho mỗi pod một địa chỉ IP riêng.
+
+kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+kubectl edit ds weave-net -n kube-system
+
+# Lệnh kubernetes
+kubectl get nodes -o wide
+kubectl get namespace
+kubectl get pods -A
+kubectl config view
+kubectl cluster-info
+kubectl get pods -o wide
+kubectl apply -f hello-kube.yaml
+kubectl port-forward pod/hello-kube 3000:3000
+
+kubectl get pod --show-labels
+kubectl get pod -L enviroment
+
+# service
+kubectl get svc
+
+# deployment
+kubectl set image deployment hello-app hello-app=080196/hello-app:v2
+kubectl rollout status deploy hello-app
+
+
+tạo namespace: 
+kubectl create ns testing
+kubectl get pod -n testing
+kubectl delete pod hello-kube-testing -n testing
+kubectl delete ns testing
+
+#replicationcontroller
+kubectl get rc
+kubectl delete rc hello-rc
+
+
+
+
+
+#List all Container images in all namespaces: 
+kubectl get pods --all-namespaces -o jsonpath="{.items[*].spec.containers[*].image}" | tr -s '[[:space:]]' '\n' | sort | uniq -c
+
+#List Container images by Pod:
+kubectl get pods --all-namespaces -o jsonpath='{range .items[*]}{"\n"}{.metadata.name}{":\t"}{range .spec.containers[*]}{.image}{", "}{end}{end}' | sort
+
+#Pulling Images from Container Registry:
+kubectl create secret docker-registry regcred --docker-server=<your-registry-server> --docker-username=<your-name> --docker-password=<your-pword> --docker-email=<your-email>
+
+# sử dụng images tự build: 
+sudo snap install microk8s --classic
+
+docker save 080196/hello-kube > hello-kube.tar
+microk8s.ctr -n k8s.io image import myimage.tar
+
+# sử dụng nerdctl
+https://github.com/containerd/nerdctl/blob/main/docs/build.md
+export BUILDKIT_HOST=nerdctl-container://buildkitd
+
+install nerdctl >
+install buildkit >
+nerdctl --namespace k8s.io ps -a
+nerdctl --namespace k8s.io build -t 080196/hello-kube .
+nerdctl --namespace k8s.io load < hello-kube.tar
+nerdctl --namespace k8s.io images
+
+# fix lỗi:
+https://medium.com/@mukesh.yadav_86837/how-to-fix-error-unable-to-upgrade-connection-pod-does-not-exist-fa90b7d1e44b
