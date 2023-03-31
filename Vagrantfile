@@ -55,6 +55,9 @@
             end
             node.vm.hostname = "kubemaster"
             node.vm.network :private_network, ip: IP_NW + "#{MASTER_IP_START + i}"
+            node.ssh.insert_key = false
+            node.ssh.forward_agent = true
+            node.ssh.private_key_path = ["~/.vagrant.d/insecure_private_key","~/.ssh/id_rsa.bk"]
             node.vm.provision "file", source: "deploy.sh" , destination: "/home/vagrant/"
             node.vm.provision "shell", inline: "sudo chmod +x /home/vagrant/deploy.sh && sudo /home/vagrant/deploy.sh"
             node.vm.synced_folder "./k8sconfig", "/home/vagrant/k8sconfig", :mount_options => ['dmode=774','fmode=775']
@@ -74,6 +77,9 @@
             node.vm.hostname = "kubenode0#{i}"
             node.vm.network :private_network, ip: IP_NW + "#{NODE_IP_START + i}"
             # node.vm.network :hostonly, ip: "10.0.2.2" + "#{NODE_IP_START + i}", :netmask => "255.255.255.0"
+            node.ssh.insert_key = false
+            node.ssh.forward_agent = true
+            node.ssh.private_key_path = ["~/.vagrant.d/insecure_private_key","~/.ssh/id_rsa.bk"]
             node.vm.provision "file", source: "deploy.sh" , destination: "/home/vagrant/"
             node.vm.provision "shell", inline: "sudo chmod +x /home/vagrant/deploy.sh && sudo /home/vagrant/deploy.sh"
         end
