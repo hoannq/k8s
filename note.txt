@@ -7,7 +7,7 @@ vagrant reload
 sudo ctr plugin ls
 
 # Khởi tạo control plane
-sudo kubeadm init --apiserver-advertise-address=192.168.56.2 --pod-network-cidr=10.244.0.0/16
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16
 kubeadm join 192.168.56.2:6443 --token l009os.2qpu42meugx7o73h --discovery-token-ca-cert-hash sha256:bd6d4e1da70efd4a3756db72dd3e270812a1bd7ffd6077d698b543942855753d
 kubeadm token list
 kubeadm token create
